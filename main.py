@@ -119,10 +119,10 @@ def go(go_url=None):
     root.update()
 
 urlbar = Frame(root, width=800,height=25, bg="white")
-urlentry = Entry(urlbar, textvariable=url, width=120)
+urlentry = Entry(urlbar, textvariable=url, width=90)
 urlgo = Button(urlbar, text="Go", width=5, command=go)
 urlentry.place(x=0,y=3)
-urlgo.place(x=720,y=0)
+urlgo.place(x=730,y=0)
 urlbar.pack()
 
 favourites = Frame(root, width=800, height=25, bg="white")
