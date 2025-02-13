@@ -120,15 +120,15 @@ def go(go_url=None):
 
 urlbar = Frame(root, width=800,height=25, bg="white")
 urlentry = Entry(urlbar, textvariable=url, width=120)
-urlgo = Button(urlbar, text="Go", width=10,command=go)
+urlgo = Button(urlbar, text="Go", width=5, command=go)
 urlentry.place(x=0,y=3)
 urlgo.place(x=720,y=0)
 urlbar.pack()
 
 favourites = Frame(root, width=800, height=25, bg="white")
-homepage = Button(favourites, text="Homepage", width=15,command=lambda theurl="https://opennetproject.github.io/index.wbl": go(theurl))
+homepage = Button(favourites, text="Homepage", width=11,command=lambda theurl="https://opennetproject.github.io/index.wbl": go(theurl))
 homepage.place(x=0,y=0)
-homepage = Button(favourites, text="SearchOpen", width=15,command=lambda theurl="https://opennetproject.github.io/search/index.wbl": go(theurl))
+homepage = Button(favourites, text="SearchOpen", width=11,command=lambda theurl="https://opennetproject.github.io/search/index.wbl": go(theurl))
 homepage.place(x=120,y=0)
 favourites.pack()
 
