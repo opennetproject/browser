@@ -1,5 +1,6 @@
 from tkinter import *
 import urllib.request
+from functools import partial
 
 root = Tk()
 root.geometry("800x600")
@@ -52,56 +53,57 @@ def parselines(content):
 
 def display_content(parsed_url_content):
     global content, root
-    y_pos=0
+    y_pos = 0
+    
     for widget in content.winfo_children():
         widget.destroy()
+
     for i in parsed_url_content:
+        font_style = ("Arial", int(i.get("size", 12)))
+        
         if i["element"] == "text":
-            try: font_style = ("Arial", int(i["size"]))
-            except: font_style = ("Arial")
             widget_b = Label(content, text=i["text"], font=font_style)
-            widget_b.place(x=10,y=y_pos)
+            widget_b.place(x=10, y=y_pos)
+
         elif i["element"] == "link":
-            try: font_style = ("Arial", int(i["size"]))
-            except: font_style = ("Arial")
-            widget_b = Button(content, text=i["text"], font=font_style, command=lambda go_url=i["location"]: go(go_url))
-            widget_b.place(x=10,y=y_pos)
+            widget_b = Button(content, text=i["text"], font=font_style, 
+                              command=partial(go, i["location"]))
+            widget_b.place(x=10, y=y_pos)
+
         elif i["element"] == "img":
             try:
                 img = WebImage(i["location"]).get()
                 widget_b = Label(content, image=img)
+                widget_b.image = img  
             except:
                 widget_b = Label(content, text="Image not found")
-            widget_b.place(x=10,y=y_pos)
-            try:
-                widget_b.config(width=int(i["width"]))
-            except:
-                pass
+            
+            widget_b.place(x=10, y=y_pos)
+            widget_b.config(width=int(i.get("width", widget_b.winfo_width())))
+
+        elif i["element"] == "box":
+            if i.get("type") == "search":
+                widget_b = Frame(content, width=200, height=25)
+                widget_b.place(x=10, y=y_pos)
+                box_src = Entry(widget_b)
+                box_src.place(x=0, y=0)
+                box_go = Button(widget_b, text="Go")
+                box_go.place(x=170, y=0)
+
         elif i["element"] == "title":
             root.title(f"{i['text']} - OpenNet")
-        root.update()
-        try:
-            if i["align"]:
-                if i["align"] == "centre":
-                    widget_b.place(x=round(window_width / 2 - widget_b.winfo_width() / 2), y=y_pos)
-        except:
-            pass
 
-        if i["element"] == "text":
-            try: y_pos += int(i["size"]) * 2
-            except: y_pos += 14 * 2
-            y_pos + 10
-        elif i["element"] == "link":
-            try: y_pos += int(i["size"]) * 2
-            except: y_pos += 13 * 2
-            y_pos += 10
+        root.update()
+
+        if i.get("align") == "centre":
+            widget_b.place(x=round(window_width / 2 - widget_b.winfo_width() / 2), y=y_pos)
+
+        if i["element"] in ["text", "link"]:
+            y_pos += int(i.get("size", 12)) * 2 + 10
         elif i["element"] == "br":
-            try: y_pos += int(i["size"]) * 2
-            except: y_pos += 13
-            y_pos += 10
+            y_pos += int(i.get("size", 13)) + 10
         elif i["element"] == "img":
-            y_pos += widget_b.winfo_width()
-            y_pos += 10
+            y_pos += widget_b.winfo_height() + 10
     
 def go(go_url=None):
     global url,content
