@@ -9,6 +9,8 @@ root.title("OpenNet")
 window_width = 800
 window_height = 575
 
+POST_CONTENT = ""
+
 url = StringVar()
 url.set("http://opennetproject.github.io/index.wbl")
 
@@ -17,17 +19,18 @@ class WebImage:
         with urllib.request.urlopen(url) as u:
             raw_data = u.read()
         image = Image.open(io.BytesIO(raw_data))
-        self.image = ImageTk.PhotoImage(image)
+        self.image = PhotoImage(image)
 
     def get(self):
         return self.image
 
 
-def parselines(content):
+def parselines(content, POST):
     decoded = []
     for i in content:
         i = i.strip().decode("utf-8")
         decoded.append({"element": "", "text": ""})
+        i = i.replace("(POST)", POST)
         j = i.split(" ")
         decoded[len(decoded) - 1]["element"] = j.pop(0).split(">")[0].replace(">", "")
         parseindex = 0
@@ -51,7 +54,14 @@ def parselines(content):
     print(decoded)
     return decoded
 
-def display_content(parsed_url_content):
+def post(url, content):
+    global POST_CONTENT
+    print(content)
+    POST_CONTENT = content
+    go(url)
+    
+    
+def display_content(parsed_url_content, POST):
     global content, root
     y_pos = 0
     
@@ -83,12 +93,13 @@ def display_content(parsed_url_content):
 
         elif i["element"] == "box":
             if i.get("type") == "search":
-                widget_b = Frame(content, width=200, height=25)
-                widget_b.place(x=10, y=y_pos)
-                box_src = Entry(widget_b)
+                widget_b = Frame(content, width=200, height=20)
+                widget_b.place(x=round(window_width / 2 - 200 / 2), y=y_pos)
+                box_content = StringVar()
+                box_src = Entry(widget_b, textvariable=box_content)
                 box_src.place(x=0, y=0)
-                box_go = Button(widget_b, text="Go")
-                box_go.place(x=170, y=0)
+                box_go = Button(widget_b, text="Go", command=lambda i=i: post(i["location"], box_content.get()))
+                box_go.place(x=163, y=-5)
 
         elif i["element"] == "title":
             root.title(f"{i['text']} - OpenNet")
@@ -106,7 +117,7 @@ def display_content(parsed_url_content):
             y_pos += widget_b.winfo_height() + 10
     
 def go(go_url=None):
-    global url,content
+    global url,content, POST_CONTENT
     if not go_url:
         go_url=url.get()
     else:
@@ -117,7 +128,7 @@ def go(go_url=None):
         data = data.readlines()
     except:
         data = [b"text size-18>Some error occured.", b"br>", b"text>Please try again."]
-    display_content(parselines(data))
+    display_content(parselines(data, POST_CONTENT), POST_CONTENT)
     root.update()
 
 urlbar = Frame(root, width=800,height=25, bg="white")
